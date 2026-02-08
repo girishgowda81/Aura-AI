@@ -291,3 +291,49 @@ body {
   background: var(--glass-border);
   border-radius: 10px;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .navbar {
+    margin: 8px;
+    padding: 0 16px;
+    height: 56px;
+  }
+
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .main-layout {
+    padding: 8px;
+    gap: 0;
+  }
+
+  .sidebar {
+    display: none;
+    /* Hide sidebar on mobile for now */
+  }
+
+  .chat-container {
+    border-radius: 16px;
+  }
+
+  .messages-area {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .message-bubble {
+    max-width: 95% !important;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .input-area {
+    padding: 12px;
+  }
+
+  .chat-input {
+    padding: 12px 14px;
+  }
+}
