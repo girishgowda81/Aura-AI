@@ -55,7 +55,7 @@ function App() {
                     <div className="brand-icon">
                         <Bot size={24} color="white" />
                     </div>
-                    <span className="brand-name">Aura AI</span>
+                    <span className="brand-name">Giri AI</span>
                 </div>
                 <div className="nav-actions">
                     <a href="https://github.com" target="_blank" rel="noreferrer" style={{ color: 'inherit' }}>
