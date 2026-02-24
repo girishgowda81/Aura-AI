@@ -9,8 +9,47 @@ function App() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const [sessionId, setSessionId] = useState(null);
+    const [sessionId, setSessionId] = useState(() => localStorage.getItem('aura_session_id') || null);
+    const [sessions, setSessions] = useState([]);
     const messagesEndRef = useRef(null);
+
+    const fetchSessions = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/sessions`);
+            setSessions(res.data);
+        } catch (error) {
+            console.error('Error fetching sessions:', error);
+        }
+    };
+
+    const loadSession = async (id) => {
+        setLoading(true);
+        try {
+            setSessionId(id);
+            localStorage.setItem('aura_session_id', id);
+            const res = await axios.get(`${API_URL}/history/${id}`);
+            setMessages(res.data.map(m => ({ role: m.role, content: m.content })));
+        } catch (error) {
+            console.error('Error loading session:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleNewChat = () => {
+        setMessages([]);
+        setSessionId(null);
+        localStorage.removeItem('aura_session_id');
+    };
+
+    // Load history and sessions on mount
+    useEffect(() => {
+        fetchSessions();
+        const savedSession = localStorage.getItem('aura_session_id');
+        if (savedSession) {
+            loadSession(savedSession);
+        }
+    }, []);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,7 +76,11 @@ function App() {
 
             const assistantMsg = { role: 'assistant', content: response.data.content };
             setMessages(prev => [...prev, assistantMsg]);
-            if (!sessionId) setSessionId(response.data.session_id);
+            if (!sessionId) {
+                setSessionId(response.data.session_id);
+                localStorage.setItem('aura_session_id', response.data.session_id);
+                fetchSessions();
+            }
         } catch (error) {
             console.error('Error:', error);
             setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error. Is the backend running?' }]);
@@ -66,12 +109,23 @@ function App() {
 
             <main className="main-layout">
                 <aside className="sidebar">
-                    <button className="new-chat-btn" onClick={() => setMessages([])}>
+                    <button className="new-chat-btn" onClick={handleNewChat}>
                         <MessageSquare size={16} /> New Chat
                     </button>
                     <div style={{ flex: 1, overflowY: 'auto', marginTop: '20px' }}>
-                        <p style={{ fontSize: '12px', fontWeight: 'bold', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: '10px' }}>Recent Chats</p>
-                        {/* Add recent chats here */}
+                        <p style={{ fontSize: '10px', fontWeight: 'bold', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: '10px' }}>Recent Chats</p>
+                        <div className="sessions-list">
+                            {sessions.map((s) => (
+                                <button
+                                    key={s.session_id}
+                                    className={`session-item ${sessionId === s.session_id ? 'active' : ''}`}
+                                    onClick={() => loadSession(s.session_id)}
+                                >
+                                    <MessageSquare size={14} />
+                                    <span>Chat {s.session_id.substring(0, 8)}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </aside>
 

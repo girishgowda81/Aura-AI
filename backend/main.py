@@ -84,5 +84,9 @@ async def chat(request: ChatRequest):
 async def get_chat_history(session_id: str):
     return database.get_history(session_id, limit=50)
 
+@app.get("/sessions")
+async def get_sessions():
+    return database.get_all_sessions()
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

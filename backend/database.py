@@ -127,5 +127,20 @@ def get_history(session_id: str, limit: int = 10):
         history.append({"role": r, "content": c, "reasoning_details": rd_obj})
     return history
 
+def get_all_sessions():
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT session_id, created_at FROM sessions 
+        ORDER BY created_at DESC
+    """
+    
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    return [{"session_id": r[0], "created_at": r[1]} for r in rows]
+
 # Initialize on import
 init_db()

@@ -136,6 +136,46 @@ body {
   background: hsla(0, 0%, 100%, 0.1);
 }
 
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.session-item:hover {
+  background: hsla(0, 0%, 100%, 0.05);
+  color: var(--text-main);
+}
+
+.session-item.active {
+  background: hsla(250, 80%, 60%, 0.1);
+  border-color: hsla(250, 80%, 60%, 0.2);
+  color: var(--primary);
+}
+
+.session-item span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .chat-container {
   flex: 1;
   display: flex;
