@@ -15,7 +15,9 @@ function App() {
 
     const fetchSessions = async () => {
         try {
+            console.log("Fetching sessions from:", `${API_URL}/sessions`);
             const res = await axios.get(`${API_URL}/sessions`);
+            console.log("Sessions received:", res.data);
             setSessions(res.data);
         } catch (error) {
             console.error('Error fetching sessions:', error);

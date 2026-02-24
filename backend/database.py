@@ -61,16 +61,12 @@ def init_db():
     
     cursor.execute(session_sql)
     cursor.execute(messages_sql)
+    
+    # Sync sessions table with messages
+    sync_sql = "INSERT INTO sessions (session_id) SELECT DISTINCT session_id FROM messages WHERE session_id NOT IN (SELECT session_id FROM sessions)"
+    cursor.execute(sync_sql)
+    
     conn.commit()
-    
-    # Migration for SQLite (reasoning_details)
-    if not is_postgres:
-        try:
-            cursor.execute("ALTER TABLE messages ADD COLUMN reasoning_details TEXT")
-            conn.commit()
-        except sqlite3.OperationalError:
-            pass
-    
     conn.close()
 
 def save_message(session_id: str, role: str, content: str, reasoning_details: Optional[any] = None):
@@ -131,6 +127,7 @@ def get_all_sessions():
     conn = get_connection()
     cursor = conn.cursor()
     
+    # Try sessions table first
     query = """
         SELECT session_id, created_at FROM sessions 
         ORDER BY created_at DESC
@@ -138,9 +135,15 @@ def get_all_sessions():
     
     cursor.execute(query)
     rows = cursor.fetchall()
+    
+    # If sessions table is empty but we have messages, return those
+    if not rows:
+        cursor.execute("SELECT DISTINCT session_id, MAX(timestamp) FROM messages GROUP BY session_id ORDER BY MAX(timestamp) DESC")
+        rows = cursor.fetchall()
+        
     conn.close()
     
-    return [{"session_id": r[0], "created_at": r[1]} for r in rows]
+    return [{"session_id": r[0], "created_at": r[1] if len(r) > 1 else None} for r in rows]
 
 # Initialize on import
 init_db()
